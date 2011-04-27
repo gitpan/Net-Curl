@@ -1,0 +1,31 @@
+This package is working, but still a lot has to change.
+
+
+** TODO **
+
+Net::Curl:
++ added LIBCURL_ constants
+- register _global_cleanup from xs somehow
+
+Easy:
+- test callback arguments just before perform (maybe only for default writers)
+- write more documentation
+
+Form:
+- implement buffer options
+- implement read callback
+- write more documentation
+
+Multi:
+- write more documentation
+- on destroy callback can resurrect multi object and destroy it recursively,
+  which will segv
+
+Share:
+- write more documentation
+
+tests:
+- use some pure-perl http server, should do for most tests
+- review and renumerate
+- add more crash tests (remove last reference while performing,
+  forced destrution, etc)
