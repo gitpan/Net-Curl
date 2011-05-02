@@ -241,7 +241,7 @@ Sample application using this module could look like this:
 
  printf "Last error: %s\n", $t->error();
 
-
+=cut
 =head1 Multi::Simple
 
 =head4 I<Extracted from C<examples/02-multi-simple.pl>>
@@ -377,7 +377,7 @@ Sample application using this module looks like this:
 
  exit $ret;
 
-
+=cut
 =head1 Multi::Event
 
 =head4 I<Extracted from C<examples/03-multi-event.pl>>
@@ -639,7 +639,7 @@ Multi::Event requires Easy object to provide finish() method.
 
  exit 0;
 
-
+=cut
 =head1 Share::Threads
 
 =head4 I<Extracted from C<examples/04-share-threads.pl>>
@@ -866,7 +866,7 @@ Sample application using this module looks like this:
  }
 
 
-
+=cut
 =head1 Irssi async downloader
 
 =head4 I<Extracted from C<examples/05-irssi-downloader.pl>>
@@ -1179,4 +1179,4 @@ named C<downloader.pl>.
  Irssi::command_bind( 'cpan', \&cpan_search );
 
 
-
+=cut

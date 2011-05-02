@@ -58,22 +58,48 @@ methods that do not yet form part of official WWW::Curl distribution.
 use strict;
 use warnings;
 
-my @packages = qw(
-	WWW/Curl.pm
-	WWW/Curl/Easy.pm
-	WWW/Curl/Form.pm
-	WWW/Curl/Multi.pm
-	WWW/Curl/Share.pm
+my %packages = (
+	'WWW/Curl.pm' => 0,
+	'WWW/Curl/Easy.pm' => 394,
+	'WWW/Curl/Form.pm' => 4239,
+	'WWW/Curl/Multi.pm' => 5118,
+	'WWW/Curl/Share.pm' => 6170,
 );
 
-# mark fake packages as loaded
-@INC{ @packages } = ("Net::Curl::Compat") x scalar @packages;
+my $start = tell *DATA;
+unshift @INC, sub {
+	my $pkg = $packages{ $_[1] };
+	return unless defined $pkg;
+	open my $fh, '<&', *DATA;
+	seek $fh, $start + $pkg, 0;
+	return $fh;
+};
+
+1;
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
+
+You may opt to use, copy, modify, merge, publish, distribute and/or sell
+copies of the Software, and permit persons to whom the Software is furnished
+to do so, under the terms of the MPL or the MIT/X-derivate licenses. You may
+pick one of these licenses.
+
+=cut
+
+__DATA__
+package WWW::Curl;
+
+use Net::Curl ();
+
+our $VERSION = '4.15';
 
 # copies constants to current namespace
 sub _copy_constants
 {
 	my $EXPORT = shift;
-	my $dest = shift;
+	my $dest = shift . "::";
 	my $source = shift;
 
 	no strict 'refs';
@@ -81,80 +107,73 @@ sub _copy_constants
 	push @$EXPORT, @constants;
 
 	foreach my $name ( @constants ) {
-		*{ $dest . $name } = \*{ $source . $name};
+		*{ $dest . $name } = \*{ $source . $name };
 	}
 }
 
+1;
 
+__END__
 
-use Net::Curl ();
-use Net::Curl::Easy qw(/^CURLOPT_/ CURLE_BAD_FUNCTION_ARGUMENT CURLINFO_PRIVATE);
-use Net::Curl::Form qw(/^CURLFORM_/);
-use Net::Curl::Share ();
-use Net::Curl::Multi ();
+package WWW::Curl::Easy;
+
+use WWW::Curl ();
+use Net::Curl::Easy ();
 use Exporter ();
+our @ISA = qw(Net::Curl::Easy Exporter);
 
-# WWW::Curl
-
-$WWW::Curl::VERSION = '4.15';
-
-
-# WWW::Curl::Easy
-
-@WWW::Curl::Easy::ISA = qw(Net::Curl::Easy Exporter);
-$WWW::Curl::Easy::VERSION = '4.15';
+our $VERSION = '4.15';
+our @EXPORT;
 
 BEGIN {
-	my $e = [];
 	# in WWW::Curl almost all the constants are thrown into WWW::Curl::Easy
 	foreach my $pkg ( qw(Net::Curl:: Net::Curl::Easy::
 			Net::Curl::Form:: Net::Curl::Share::
 			Net::Curl::Multi::) ) {
-		Net::Curl::Compat::_copy_constants(
-			$e, 'WWW::Curl::Easy::', $pkg );
+		WWW::Curl::_copy_constants(
+			\@EXPORT, __PACKAGE__, $pkg );
 	}
-	@WWW::Curl::Easy::EXPORT = @$e;
 }
 
 # what is that anyways ?
 $WWW::Curl::Easy::headers = "";
 $WWW::Curl::Easy::content = "";
 
-sub WWW::Curl::Easy::new
+sub new
 {
-	my $class = shift || 'WWW::Curl::Easy';
-	return Net::Curl::Easy::new( $class );
+	my $class = shift || __PACKAGE__;
+	return $class->SUPER::new();
 }
 
-*WWW::Curl::Easy::init = \&WWW::Curl::Easy::new;
-*WWW::Curl::Easy::errbuf = \&Net::Curl::Easy::error;
-*WWW::Curl::Easy::strerror = \&Net::Curl::Easy::strerror;
+*init = \&new;
+*errbuf = \&Net::Curl::Easy::error;
+*strerror = \&Net::Curl::Easy::strerror;
 
-*WWW::Curl::Easy::version = \&Net::Curl::version;
+*version = \&Net::Curl::version;
 
-sub WWW::Curl::Easy::cleanup { 0 };
+sub cleanup { 0 };
 
-sub WWW::Curl::Easy::internal_setopt { die };
+sub internal_setopt { die };
 
-sub WWW::Curl::Easy::duphandle
+sub duphandle
 {
 	my ( $source ) = @_;
-	my $clone = Net::Curl::Easy::duphandle( $source );
+	my $clone = $source->SUPER::duphandle;
 	bless $clone, "WWW::Curl::Easy"
 }
 
-sub WWW::Curl::Easy::const_string
+sub const_string
 {
 	my ( $self, $constant ) = @_;
-	return WWW::Curl::Easy::constant( $constant );
+	return constant( $constant );
 }
 
 # this thing is weird !
-sub WWW::Curl::Easy::constant
+sub constant
 {
 	my $name = shift;
 	undef $!;
-	my $value = eval "WWW::Curl::Easy::$name()";
+	my $value = eval "$name()";
 	if ( $@ ) {
 		require POSIX;
 		$! = POSIX::EINVAL();
@@ -163,7 +182,7 @@ sub WWW::Curl::Easy::constant
 	return $value;
 }
 
-sub WWW::Curl::Easy::setopt
+sub setopt
 {
 	# convert options and provide wrappers for callbacks
 	my ($self, $option, $value, $push) = @_;
@@ -215,18 +234,18 @@ sub WWW::Curl::Easy::setopt
 		};
 	}
 	eval {
-		Net::Curl::Easy::setopt( $self, $option, $value );
+		$self->SUPER::setopt( $option, $value );
 	};
 	return 0 unless $@;
 	return 0+$@ if ref $@ eq "Net::Curl::Easy::Code";
 	die $@;
 }
 
-sub WWW::Curl::Easy::pushopt
+sub pushopt
 {
 	my ($self, $option, $value) = @_;
 	eval {
-		Net::Curl::Easy::pushopt( $self, $option, $value );
+		$self->SUPER::pushopt( $option, $value );
 	};
 	return 0 unless $@;
 	if ( ref $@ eq "Net::Curl::Easy::Code" ) {
@@ -239,7 +258,7 @@ sub WWW::Curl::Easy::pushopt
 	die $@;
 }
 
-sub WWW::Curl::Easy::getinfo
+sub getinfo
 {
 	my ($self, $option) = @_;
 
@@ -248,7 +267,7 @@ sub WWW::Curl::Easy::getinfo
 		$ret = $self->{private};
 	} else {
 		eval {
-			$ret = Net::Curl::Easy::getinfo( $self, $option );
+			$ret = $self->SUPER::getinfo( $option );
 		};
 		if ( $@ ) {
 			return undef if ref $@ eq "Net::Curl::Easy::Code";
@@ -261,11 +280,11 @@ sub WWW::Curl::Easy::getinfo
 	return $ret;
 }
 
-sub WWW::Curl::Easy::perform
+sub perform
 {
 	my $self = shift;
 	eval {
-		Net::Curl::Easy::perform( $self );
+		$self->SUPER::perform( @_ );
 	};
 	if ( defined $self->{errorbuffer} ) {
 		my $error = $self->error();
@@ -283,25 +302,31 @@ sub WWW::Curl::Easy::perform
 	die $@;
 }
 
+1;
 
-# WWW::Curl::Form
+__END__
 
-@WWW::Curl::Form::ISA = qw(Net::Curl::Form Exporter);
-$WWW::Curl::Form::VERSION = '4.15';
+package WWW::Curl::Form;
+use WWW::Curl ();
+use Net::Curl::Form ();
+use Exporter ();
+our @ISA = qw(Net::Curl::Form Exporter);
+
+our $VERSION = '4.15';
+
+our @EXPORT;
 
 BEGIN {
-	@WWW::Curl::Form::EXPORT = ();
-	Net::Curl::Compat::_copy_constants(
-		\@WWW::Curl::Form::EXPORT, 'WWW::Curl::Form::',
-		"Net::Curl::Form::" );
+	WWW::Curl::_copy_constants(
+		\@EXPORT, __PACKAGE__, "Net::Curl::Form::" );
 }
 
 # this thing is weird !
-sub WWW::Curl::Form::constant
+sub constant
 {
 	my $name = shift;
 	undef $!;
-	my $value = eval "WWW::Curl::Form::$name()";
+	my $value = eval "$name()";
 	if ( $@ ) {
 		require POSIX;
 		$! = POSIX::EINVAL();
@@ -310,13 +335,13 @@ sub WWW::Curl::Form::constant
 	return $value;
 }
 
-sub WWW::Curl::Form::new
+sub new
 {
-	my $class = shift || 'WWW::Curl::Form';
-	return Net::Curl::Form::new( $class );
+	my $class = shift || __PACKAGE__;
+	return $class->SUPER::new();
 }
 
-sub WWW::Curl::Form::formadd
+sub formadd
 {
 	my ( $self, $name, $value ) = @_;
 	eval {
@@ -327,7 +352,7 @@ sub WWW::Curl::Form::formadd
 	};
 }
 
-sub WWW::Curl::Form::formaddfile
+sub formaddfile
 {
 	my ( $self, $filename, $description, $type ) = @_;
 	eval {
@@ -339,41 +364,45 @@ sub WWW::Curl::Form::formaddfile
 	};
 }
 
+1;
 
-# WWW::Curl::Multi
+__END__
 
-@WWW::Curl::Multi::ISA = qw(Net::Curl::Multi);
+package WWW::Curl::Multi;
+use WWW::Curl ();
+use Net::Curl::Multi ();
+our @ISA = qw(Net::Curl::Multi);
 
-*WWW::Curl::Multi::strerror = \&Net::Curl::Multi::strerror;
+*strerror = \&Net::Curl::Multi::strerror;
 
-sub WWW::Curl::Multi::new
+sub new
 {
-	my $class = shift || 'WWW::Curl::Multi';
-	return Net::Curl::Multi::new( $class );
+	my $class = shift || __PACKAGE__;
+	return $class->SUPER::new();
 }
 
-sub WWW::Curl::Multi::add_handle
-{
-	my ( $multi, $easy ) = @_;
-	eval {
-		Net::Curl::Multi::add_handle( $multi, $easy );
-	};
-}
-
-sub WWW::Curl::Multi::remove_handle
+sub add_handle
 {
 	my ( $multi, $easy ) = @_;
 	eval {
-		Net::Curl::Multi::remove_handle( $multi, $easy );
+		$multi->SUPER::add_handle( $easy );
 	};
 }
 
-sub WWW::Curl::Multi::info_read
+sub remove_handle
+{
+	my ( $multi, $easy ) = @_;
+	eval {
+		$multi->SUPER::remove_handle( $easy );
+	};
+}
+
+sub info_read
 {
 	my ( $multi ) = @_;
 	my @ret;
 	eval {
-		@ret = Net::Curl::Multi::info_read( $multi );
+		@ret = $multi->SUPER::info_read();
 	};
 	return () unless @ret;
 
@@ -383,12 +412,12 @@ sub WWW::Curl::Multi::info_read
 	return ( $easy->{private}, $result );
 }
 
-sub WWW::Curl::Multi::fdset
+sub fdset
 {
 	my ( $multi ) = @_;
 	my @vec;
 	eval {
-		@vec = Net::Curl::Multi::fdset( $multi );
+		@vec = $multi->SUPER::fdset;
 	};
 	my @out;
 	foreach my $in ( @vec ) {
@@ -403,43 +432,49 @@ sub WWW::Curl::Multi::fdset
 	return @out;
 }
 
-sub WWW::Curl::Multi::perform
+sub perform
 {
 	my ( $multi ) = @_;
 
 	my $ret;
 	eval {
-		$ret = Net::Curl::Multi::perform( $multi );
+		$ret = $multi->SUPER::perform;
 	};
 
 	return $ret;
 }
 
-# WWW::Curl::Share
+1;
 
-@WWW::Curl::Share::ISA = qw(Net::Curl::Share Exporter);
+__END__
+
+package WWW::Curl::Share;
+use WWW::Curl ();
+use Net::Curl::Share ();
+use Exporter ();
+our @ISA = qw(Net::Curl::Share Exporter);
+
+our @EXPORT;
 
 BEGIN {
-	@WWW::Curl::Share::EXPORT = ();
-	Net::Curl::Compat::_copy_constants(
-		\@WWW::Curl::Share::EXPORT, 'WWW::Curl::Share::',
-		"Net::Curl::Share::" );
+	WWW::Curl::_copy_constants(
+		\@EXPORT, __PACKAGE__, "Net::Curl::Share::" );
 }
 
-*WWW::Curl::Share::strerror = \&Net::Curl::Share::strerror;
+*strerror = \&Net::Curl::Share::strerror;
 
-sub WWW::Curl::Share::new
+sub new
 {
-	my $class = shift || 'WWW::Curl::Share';
-	return Net::Curl::Share::new( $class );
+	my $class = shift || __PACKAGE__;
+	return $class->SUPER::new();
 }
 
 # this thing is weird !
-sub WWW::Curl::Share::constant
+sub constant
 {
 	my $name = shift;
 	undef $!;
-	my $value = eval "WWW::Curl::Share::$name()";
+	my $value = eval "$name()";
 	if ( $@ ) {
 		require POSIX;
 		$! = POSIX::EINVAL();
@@ -448,24 +483,18 @@ sub WWW::Curl::Share::constant
 	return $value;
 }
 
-sub WWW::Curl::Share::setopt
+sub setopt
 {
 	my ($self, $option, $value) = @_;
 	eval {
-		Net::Curl::Share::setopt( $self, $option, $value );
+		$self->SUPER::setopt( $option, $value );
 	};
 	return 0 unless $@;
-	return 0+$@ if ref $@ eq "Net::Curl::Form::Code";
+	return 0+$@ if ref $@ eq "Net::Curl::Share::Code";
 	die $@;
 }
 
 1;
 
-=head1 COPYRIGHT
+__END__
 
-Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
-
-You may opt to use, copy, modify, merge, publish, distribute and/or sell
-copies of the Software, and permit persons to whom the Software is furnished
-to do so, under the terms of the MPL or the MIT/X-derivate licenses. You may
-pick one of these licenses.

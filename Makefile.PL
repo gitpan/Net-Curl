@@ -1,6 +1,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use ExtUtils::MakeMaker::Config;
+use File::Find;
 
 # you can set those manually if curl-config is not working for you
 my %curl = (
@@ -10,6 +11,13 @@ my %curl = (
 	version => ''	# 7.21.0
 );
 
+my $www_compat = 1;
+# 0, "" - no WWW::Curl compat
+# "exp" - explicit compatibility modules, will conflict with WWW::Curl
+# true  - compat through Net::Curl::Compat (default)
+if ( exists $ENV{WWW_COMPAT} ) {
+	$www_compat = $ENV{WWW_COMPAT};
+}
 
 # - this version added curl_multi_socket_action() and many symbols
 my $minimum_libcurl_ver = "7.15.4";
@@ -106,6 +114,18 @@ split_xs( "Multi" );
 split_xs( "Share" );
 
 write_examples_pod( 'lib/Net/Curl/examples.pod' );
+if ( $www_compat ) {
+	if ( $www_compat eq "exp" ) {
+		deep_copy( 'inc/Compat/WWW', 'lib' );
+		open my $f, '>', 'lib/Net/Curl/Compat.pm';
+		print $f "'compat is explicit';\n";
+	} else {
+		write_compat_maybe( 'lib/Net/Curl/Compat.pm', 'inc/Compat' );
+	}
+} else {
+	open my $f, '>', 'lib/Net/Curl/Compat.pm';
+	print $f qq[die "WWW::Curl compatibility disabled\\n";\n];
+}
 
 # older perl seems to choke on it, maybe utf8::upgrade would work ?
 my $l_ = $] >= 5.010 ? "ł" : "l";
@@ -128,6 +148,7 @@ WriteMakefile(
 		"ExtUtils::MakeMaker" => 0,
 		"ExtUtils::MakeMaker::Config" => 0,
 		#"ExtUtils::PkgConfig" => 0,
+		"File::Find" => 0,
 	},
 	PREREQ_PM => {
 		"Test::More" => 0,
@@ -144,7 +165,8 @@ WriteMakefile(
 			glob "examples/*.pl" ),
 	},
 	clean		=> {
-		FILES => 'const-*.inc curl-*.inc lib/Net/Curl/examples.pod'
+		FILES => join " ", qw(const-*.inc curl-*.inc lib/WWW
+			lib/Net/Curl/examples.pod lib/Net/Curl/Compat.pm),
 	},
 	DIR			=> [], # no other Makefile.PL
 );
@@ -412,19 +434,66 @@ sub write_examples_pod
 			}
 		}
 
-		print $o "\n\n";
+		print $o "\n=cut\n";
+	}
+}
+
+sub write_compat_maybe
+{
+	my ( $name_out, $name_in ) = @_;
+
+	return unless -r $name_in;
+
+	open my $fout, '>', $name_out
+		or die "Cannot write to $name_out: $!\n";
+	print "Writing $name_out\n";
+
+	my @pm;
+	find( sub{ push @pm, $File::Find::name if /\.pm$/ }, $name_in );
+
+	local $/ = undef;
+	my $data = "";
+	my @sections;
+	foreach ( sort @pm ) {
+		open my $fin, '<', $_ or die;
+		s#\Q$name_in\E/##;
+		my $pos = length $data;
+		push @sections, "\t'$_' => $pos,";
+		$data .= <$fin> . "\n__END__\n\n";
+	}
+
+	open my $fin, '<', $name_in . ".pm" or die;
+	$_ = <$fin>;
+	local $" = "\n";
+	s/#MODULES#/@sections/;
+
+	print $fout $_ . $data;
+}
+
+sub deep_copy
+{
+	my ( $src, $dst ) = @_;
+
+	system "cp", "-a", $src, $dst;
+	if ( $? ) {
+		require File::Copy::Recursive;
+		( my $name = $src ) =~ s#.*/##;
+		File::Copy::Recursive::dircopy( $src, "$dst/$name" );
 	}
 }
 
 sub MY::postamble
 {
 	return <<'EOM';
-.PHONY: testall disttestall symbols_update
+.PHONY: testall disttestall version_update symbols_update
 testall:
 	TEST_AUTHOR=1 TEST_EXTENDED=1 $(MAKE) test
 
 disttestall:
 	TEST_AUTHOR=1 TEST_EXTENDED=1 $(MAKE) disttest
+
+version_update:
+	sed -i "/VERSION\s*=/s/=\s*'.*'/= '$(VERSION)'/" lib/Net/Curl/*.pm
 
 symbols_update:
 	curl https://github.com/bagder/curl/raw/master/docs/libcurl/symbols-in-versions -o inc/symbols-in-versions
