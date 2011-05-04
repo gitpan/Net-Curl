@@ -149,6 +149,13 @@ perl_curl_easy_delete( pTHX_ perl_curl_easy_t *easy )
 	 * we want it while easy handle is still alive */
 	curl_easy_setopt( easy->handle, CURLOPT_SHARE, NULL );
 
+	/* when using multi handle, the connection may stay open in that multi,
+	 * but the easy will be long dead. In case of ftp for instance, connection
+	 * closing will send a trailer with no apparent destination */
+	/* this also disables header callback if not using multi, SORRY */
+	curl_easy_setopt( easy->handle, CURLOPT_HEADERFUNCTION, NULL );
+	curl_easy_setopt( easy->handle, CURLOPT_WRITEHEADER, NULL );
+
 	if ( easy->handle )
 		curl_easy_cleanup( easy->handle );
 
@@ -403,6 +410,9 @@ getinfo( easy, option )
 			{
 				CURLcode ret;
 				char * vchar;
+				if ( option == CURLINFO_PRIVATE )
+					croak( "CURLINFO_PRIVATE is not available, use your base object" );
+
 				ret = curl_easy_getinfo( easy->handle, option, &vchar );
 				EASY_DIE( ret );
 				RETVAL = newSVpv( vchar, 0 );
@@ -431,6 +441,10 @@ getinfo( easy, option )
 				CURLcode ret;
 				struct curl_slist *vlist, *entry;
 				AV *items = NULL;
+#ifdef CURLINFO_CERTINFO
+				if ( option == CURLINFO_CERTINFO )
+					croak( "CURLINFO_CERTINFO is not supported" );
+#endif
 				ret = curl_easy_getinfo( easy->handle, option, &vlist );
 				EASY_DIE( ret );
 
@@ -442,8 +456,10 @@ getinfo( easy, option )
 						entry = entry->next;
 					}
 					curl_slist_free_all( vlist );
+					RETVAL = newRV( sv_2mortal( (SV *) items ) );
+				} else {
+					RETVAL = &PL_sv_undef;
 				}
-				RETVAL = newRV( sv_2mortal( (SV *) items ) );
 				break;
 			}
 			default: {

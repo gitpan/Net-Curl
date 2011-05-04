@@ -15,15 +15,15 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 673afdb9634dfbbae9f1336daef1536bb5b5dc8c Curl.xs
-SHA1 5097fe28e55845743f783cd4549560b455ceb299 Curl_Easy.xsh
+SHA1 7ade0876b115c6d77457096dd3f496a82485d824 Curl_Easy.xsh
 SHA1 cfb0aea84aee096e3a1e4acc1a4f36e6c456d7e4 Curl_Easy_callbacks.c
 SHA1 a0a78085836541c4edd857abdf5824e68421a06b Curl_Easy_setopt.c
 SHA1 dcbf038815a93b430104bdb53fe87dc27463cf0a Curl_Form.xsh
 SHA1 ac1addef3a38e90a33b63c21a12151fa88c7b544 Curl_Multi.xsh
 SHA1 cd8df391211ae1ec9b78cfc22529a3d5dc43a6d0 Curl_Share.xsh
 SHA1 94cbea5b3fb940e25cd4535d1c81bfd7d51dac3c LICENSE
-SHA1 e5d1e6d11232cb80ed660af61e53e40f0017ec3d MANIFEST
-SHA1 1c482d7a073a50ba22fd74300f1ff6bd41e046ff META.yml
+SHA1 b3c1b2a9db374ebca67061c9e12e7079b95d6e45 MANIFEST
+SHA1 eaff63e1cbabdc08a22cbaf2691b1d100f241239 META.yml
 SHA1 2c95c2eab0efa426d72562c35fdbb11070415b3b Makefile.PL
 SHA1 00077af8da162f863b2778570fb0fad352f3b5ae README
 SHA1 e400ec90c587f215f739142efaea4e898fee2860 examples/01-curl-transport.pl
@@ -32,25 +32,27 @@ SHA1 b29db3349dca4b2f7ab5669ceab505643516ef48 examples/03-multi-event.pl
 SHA1 8a62bb893894876fd334c7dbd47ee9c895ed6c57 examples/04-share-threads.pl
 SHA1 513e95c81d810b39c13278be22c9f45ffb92e980 examples/05-irssi-downloader.pl
 SHA1 d85f6a7a652c870291964df0874777054831571c inc/Compat.pm
-SHA1 7cac037ff498536b4febc14001e6b2b1655c6a43 inc/Compat/WWW/Curl.pm
-SHA1 7d42976fb4116dc61c24d105479d1ebe06459cb9 inc/Compat/WWW/Curl/Easy.pm
-SHA1 46a7ea7fbae1975ba50114cc92a8795b038512dd inc/Compat/WWW/Curl/Form.pm
-SHA1 ba0905a5b2655075c0c9b391db6bbcdafe79e90d inc/Compat/WWW/Curl/Multi.pm
-SHA1 17f8ae81b4551972da9ac7226309248039cd3212 inc/Compat/WWW/Curl/Share.pm
+SHA1 112c4798b3770bc250aff8291b164f1685649839 inc/Compat/WWW/Curl.pm
+SHA1 fb007b5b73aec795863343c173ae01cd71c768de inc/Compat/WWW/Curl/Easy.pm
+SHA1 84a29e280aeb64d758b1dcde982c52d2b2966a79 inc/Compat/WWW/Curl/Form.pm
+SHA1 5c17a56bf0c59a248e12b4e43b45a4ba85812637 inc/Compat/WWW/Curl/Multi.pm
+SHA1 b683b9c3c979c2ebb5ce26d00141b7e6f712ee67 inc/Compat/WWW/Curl/Share.pm
 SHA1 c94d48390d889d9b4776a2baebbe762b33a1cc26 inc/symbols-in-versions
-SHA1 69e676e33db91f5cd2f9a692f847a9c2143cea55 lib/Net/Curl.pm
-SHA1 430f147231001f4448fa14f3c5b7a2ce691b465e lib/Net/Curl/Compat.pm
-SHA1 d0d0a2741885283e5274bfcffe4a91c90fa30ff6 lib/Net/Curl/Easy.pm
-SHA1 42a1f20676f40085d592cfa609a2aadf96955438 lib/Net/Curl/Form.pm
-SHA1 aab892d41ea07a87646b991616992fbfbfee75e3 lib/Net/Curl/Multi.pm
-SHA1 c9e75988dfa158611ece8714d715c07b6b8a53d7 lib/Net/Curl/Share.pm
+SHA1 e7762324291eb70aa1e7c0f722eca6c38e615a1c lib/Net/Curl.pm
+SHA1 f6bb66793778df9006b52db8a830598805773175 lib/Net/Curl/Compat.pm
+SHA1 24e42401c904565073979093ebb05644134a0418 lib/Net/Curl/Easy.pm
+SHA1 bd397e945abb085a2d9913a23290a9483a8d800e lib/Net/Curl/Form.pm
+SHA1 c1d3b529304685eea4abc05ff72e38b639e627b0 lib/Net/Curl/Multi.pm
+SHA1 b685116c711b052b41f87a59fd4ce6b80480dddc lib/Net/Curl/Share.pm
 SHA1 1aba3b48885111b18ff04a61fbd935d433b0fe76 lib/Net/Curl/examples.pod
 SHA1 10ee021520d7eeacc4f5d150169e848965e14484 t/00-info.t
 SHA1 b18bde711dae86f2639c3baf80b99ac826237ef6 t/01-constants.t
 SHA1 a74ad46ca88edf219c50bf4ba50eec4e9b15688e t/02-methods.t
 SHA1 f59f63bf60e4714cc739e27187917e2f66262ed4 t/50-crash-lastref.t
-SHA1 d361c531a6606bef421a447ae7f37e0c373d0daa t/51-crash-destroy-with-callbacks.t
+SHA1 7cfda1b75ad19dbec51147b0bba24122b1a57233 t/51-crash-destroy-with-callbacks.t
 SHA1 d3031d369cbf3cd6571eb9ce32a857556e0992ba t/52-alter-base.t
+SHA1 2b5c034e2c54c0f62725d551c371f99601cbb9e5 t/53-crash-destroy-with-callbacks-multi.t
+SHA1 3c9a68c0cb46de4c473d2c7ac5d1152d5930d4ba t/54-crash-getinfo-slist.t
 SHA1 b87a1640e998ed0fe04a5374a8d08340dda54167 t/97-pod.t
 SHA1 7a489478017db4e943e8d375d1b0b49bb5ac1cf1 t/98-pod-coverage.t
 SHA1 d6b78f1bb94da9a5946883291f24e7c63886e0c2 t/99-symbols.t
@@ -94,7 +96,7 @@ SHA1 7b0e013f379f67f219c78779f68dba82bf7e91c9 typemap
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAk2/NMMACgkQdltEc8aiybnvogCfUL20TrrQtvN819bkvQ0q/B4b
-hHMAoI+uFVKqG4Y592hvKReUSrXPcFER
-=S/Ur
+iEYEARECAAYFAk3BqF4ACgkQdltEc8aiybmYEACeKbJvsYLs++IxwCXdtUXstzck
+XwoAnjT3+2vxEwH/p5JNj320qZqUf/x/
+=ODOY
 -----END PGP SIGNATURE-----

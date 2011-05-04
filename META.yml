@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Net-Curl
-version:            0.21
+version:            0.22
 abstract:           Perl interface for libcurl
 author:
     - Przemysław Iskra <sparky at pld-linux.org>

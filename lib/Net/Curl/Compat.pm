@@ -60,10 +60,10 @@ use warnings;
 
 my %packages = (
 	'WWW/Curl.pm' => 0,
-	'WWW/Curl/Easy.pm' => 394,
-	'WWW/Curl/Form.pm' => 4239,
-	'WWW/Curl/Multi.pm' => 5118,
-	'WWW/Curl/Share.pm' => 6170,
+	'WWW/Curl/Easy.pm' => 422,
+	'WWW/Curl/Form.pm' => 4293,
+	'WWW/Curl/Multi.pm' => 5199,
+	'WWW/Curl/Share.pm' => 6278,
 );
 
 my $start = tell *DATA;
@@ -91,6 +91,8 @@ pick one of these licenses.
 __DATA__
 package WWW::Curl;
 
+use strict;
+use warnings;
 use Net::Curl ();
 
 our $VERSION = '4.15';
@@ -99,7 +101,7 @@ our $VERSION = '4.15';
 sub _copy_constants
 {
 	my $EXPORT = shift;
-	my $dest = shift . "::";
+	my $dest = (shift) . "::";
 	my $source = shift;
 
 	no strict 'refs';
@@ -117,6 +119,8 @@ __END__
 
 package WWW::Curl::Easy;
 
+use strict;
+use warnings;
 use WWW::Curl ();
 use Net::Curl::Easy ();
 use Exporter ();
@@ -307,6 +311,9 @@ sub perform
 __END__
 
 package WWW::Curl::Form;
+
+use strict;
+use warnings;
 use WWW::Curl ();
 use Net::Curl::Form ();
 use Exporter ();
@@ -369,6 +376,9 @@ sub formaddfile
 __END__
 
 package WWW::Curl::Multi;
+
+use strict;
+use warnings;
 use WWW::Curl ();
 use Net::Curl::Multi ();
 our @ISA = qw(Net::Curl::Multi);
@@ -449,6 +459,9 @@ sub perform
 __END__
 
 package WWW::Curl::Share;
+
+use strict;
+use warnings;
 use WWW::Curl ();
 use Net::Curl::Share ();
 use Exporter ();
