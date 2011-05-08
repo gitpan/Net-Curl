@@ -2,17 +2,23 @@
 
 use strict;
 use warnings;
-use Test::More tests => 22;
+use lib 'inc';
+use Test::More;
+use Test::HTTP::Server;
 use Net::Curl::Easy qw(:constants);
 use Net::Curl::Multi qw(:constants);
 use File::Temp qw/tempfile/;
+
+my $server = Test::HTTP::Server->new;
+plan skip_all => "Could not run http server\n" unless $server;
+plan tests => 22;
 
 my $header = tempfile();
 my $header2 = tempfile();
 my $body = tempfile();
 my $body2 = tempfile();
 
-my $url = $ENV{CURL_TEST_URL} || "http://rsget.pl";
+my $url = $server->uri;
 
 my $last_fdset = "";
 my $last_cnt = 0;
@@ -44,7 +50,7 @@ sub action_wait {
 	print_fdset( $rin, $win, $ein );
 	my $timeout = $curlm->timeout;
 	if ( $timeout > 0 ) {
-		my ($nfound,$timeleft) = select($rin, $win, $ein, $timeout);
+		my ($nfound,$timeleft) = select($rin, $win, $ein, $timeout / 1000);
 	}
 }
 

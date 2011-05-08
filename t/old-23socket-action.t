@@ -2,9 +2,15 @@
 
 use strict;
 use warnings;
-use Test::More tests => 14;
+use lib 'inc';
+use Test::More;
+use Test::HTTP::Server;
 use Net::Curl::Easy qw(:constants);
 use Net::Curl::Multi qw(:constants);
+
+my $server = Test::HTTP::Server->new;
+plan skip_all => "Could not run http server\n" unless $server;
+plan tests => 14;
 
 my ($head1, $head2, $body1, $body2 );
 open my $_head1, ">", \$head1;
@@ -12,7 +18,7 @@ open my $_body1, ">", \$body1;
 open my $_head2, ">", \$head2;
 open my $_body2, ">", \$body2;
 
-my $url = $ENV{CURL_TEST_URL} || "http://rsget.pl";
+my $url = $server->uri;
 
 my $sock_read = 0;
 my $sock_write = 0;
@@ -102,13 +108,13 @@ $curlm->add_handle( $curl2 );
 # init
 my $active = $curlm->socket_action();
 ok( defined $timeout, "timeout set" );
-$sock_read_all = 0;
 
 #warn "main loop\n";
 do {
 	my $active_now;
-	my ($cnt, $timeout) = select $vec_r = $vec_read, $vec_w = $vec_write,
+	my ($cnt, $timeleft) = select $vec_r = $vec_read, $vec_w = $vec_write,
 		$vec_e = $vec_read | $vec_write, $timeout;
+	$timeout = $timeleft;
 	if ( $cnt ) {
 		my $maxfd = 8 * length( $vec_e ) - 1;
 		foreach my $i ( 0..$maxfd ) {

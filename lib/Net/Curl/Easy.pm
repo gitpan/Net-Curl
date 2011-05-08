@@ -5,7 +5,7 @@ use warnings;
 use Net::Curl ();
 use Exporter 'import';
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 our @EXPORT_OK = grep /^CURL/, keys %{Net::Curl::Easy::};
 our %EXPORT_TAGS = ( constants => \@EXPORT_OK );
@@ -445,6 +445,10 @@ CURLOPT_FNMATCH_DATA value. Must return one of CURL_FNMATCHFUNC_* values.
          ? CURL_FNMATCHFUNC_MATCH
          : CURL_FNMATCHFUNC_NOMATCH );
  }
+
+=item CURLOPT_SSH_KEYFUNCTION ( CURLOPT_SSH_KEYDATA ) 7.19.6+
+
+Not supported yet.
 
 =back
 
