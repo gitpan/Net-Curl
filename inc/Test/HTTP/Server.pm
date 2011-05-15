@@ -1,13 +1,22 @@
 package Test::HTTP::Server;
 #
+# 2011 (c) Przemysław Iskra <sparky@pld-linux.org>
+#		This program is free software,
+# you may distribute it under the same terms as Perl.
+#
 use strict;
 use warnings;
 use IO::Socket;
 use POSIX ":sys_wait_h";
 
+our $VERSION = '0.03';
+
 sub _open_socket
 {
-	my $port = $ENV{HTTP_PORT} || $$;
+	my $frompid = $$;
+	$frompid %= 63 * 1024;
+	$frompid += 63 * 1024 if $frompid < 1024;
+	my $port = $ENV{HTTP_PORT} || $frompid;
 	foreach ( 0..100 ) {
 		my $socket = IO::Socket::INET->new(
 			Proto => 'tcp',
@@ -32,11 +41,15 @@ sub new
 	die "Could not fork\n"
 		unless defined $pid;
 	if ( $pid ) {
-		my $self = { port => $port, pid => $pid };
+		my $self = {
+			address => "127.0.0.1",
+			port => $port,
+			pid => $pid,
+		};
 		return bless $self, $class;
 	} else {
 		$SIG{CHLD} = \&_sigchld;
-		HTTP::Server::_main_loop( $socket, @_ );
+		_main_loop( $socket, @_ );
 		exec "true";
 		die "Should not be here\n";
 	}
@@ -45,7 +58,22 @@ sub new
 sub uri
 {
 	my $self = shift;
-	return "http://127.0.0.1:$self->{port}/";
+	return "http://$self->{address}:$self->{port}/";
+}
+
+sub port
+{
+	my $self = shift;
+	$self->{port};
+}
+
+sub address
+{
+	my $self = shift;
+	if ( @_ ) {
+		$self->{address} = shift;
+	}
+	$self->{address};
 }
 
 sub _sigchld
@@ -71,8 +99,6 @@ sub DESTROY
 	}
 }
 
-package HTTP::Server;
-
 sub _term
 {
 	exec "true";
@@ -92,18 +118,30 @@ sub _main_loop
 		if ( $pid ) {
 			close $client;
 		} else {
-			HTTP::Server::Request->open( $client, @_ );
+			Test::HTTP::Server::Request->open( $client, @_ );
 			_term();
 		}
 	}
 }
 
-package HTTP::Server::Connection;
+package Test::HTTP::Server::Connection;
 
-use constant {
-	DNAME => [qw(Sun Mon Tue Wed Thu Fri Sat)],
-	MNAME => [qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)],
-};
+BEGIN {
+	eval {
+		require URI::Escape;
+		URI::Escape->import( qw(uri_unescape) );
+	};
+	if ( $@ ) {
+		*uri_unescape = sub {
+			local $_ = shift;
+			s/%(..)/chr hex $1/eg;
+			return $_;
+		};
+	}
+}
+
+use constant DNAME => [qw(Sun Mon Tue Wed Thu Fri Sat)];
+use constant MNAME => [qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)];
 
 sub _http_time
 {
@@ -156,17 +194,21 @@ sub in_all
 
 sub in_request
 {
+	my $self = shift;
 	local $/ = "\r\n";
 	$_ = <STDIN>;
+	$self->{head} = $_;
 	chomp;
 	return [ split /\s+/, $_ ];
 }
 
 sub in_headers
 {
+	my $self = shift;
 	local $/ = "\r\n";
 	my @headers;
 	while ( <STDIN> ) {
+		$self->{head} .= $_;
 		chomp;
 		last unless length $_;
 		s/(\S+):\s*//;
@@ -203,7 +245,14 @@ sub out_headers
 	my $self = shift;
 	while ( my ( $name, $value ) = splice @_, 0, 2 ) {
 		$name = join "-", map { ucfirst lc $_ } split /[_-]+/, $name;
-		print "$name: $value\r\n";
+		if ( ref $value ) {
+			# must be an array
+			foreach my $val ( @$value ) {
+				print "$name: $val\r\n";
+			}
+		} else {
+			print "$name: $value\r\n";
+		}
 	}
 }
 
@@ -229,14 +278,15 @@ sub out_all
 	);
 	$self->{out_headers} = { %default_headers };
 
-	my $func = $self->{request}->[1];
-	$func =~ s#^/+##;
-	$func =~ s#/.*##;
-	$func = "index" unless length $func;
+	my $req = $self->{request}->[1];
+	$req =~ s#^/##;
+	my @args = map { uri_unescape $_ } split m#/#, $req;
+	my $func = shift @args;
+	$func = "index" unless defined $func and length $func;
 
 	my $body;
 	eval {
-		$body = $self->$func();
+		$body = $self->$func( @args );
 	};
 	if ( $@ ) {
 		warn "Server error: $@\n";
@@ -254,20 +304,68 @@ sub out_all
 	}
 }
 
+# default handlers
 sub index
 {
 	my $self = shift;
 	my $body = "Available functions:\n";
 	$body .= ( join "", map "- $_\n", sort { $a cmp $b}
 		grep { not __PACKAGE__->can( $_ ) }
-		grep { HTTP::Server::Request->can( $_ ) }
-		keys %{HTTP::Server::Request::} )
+		grep { Test::HTTP::Server::Request->can( $_ ) }
+		keys %{Test::HTTP::Server::Request::} )
 		|| "NONE\n";
 	return $body;
-};
+}
 
-package HTTP::Server::Request;
-our @ISA = qw(HTTP::Server::Connection);
+sub echo
+{
+	my $self = shift;
+	my $type = shift;
+	my $body = "";
+	if ( not $type or $type eq "head" ) {
+		$body .= $self->{head};
+	}
+	if ( ( not $type or $type eq "body" ) and defined $self->{body} ) {
+		$body .= $self->{body};
+	}
+	return $body;
+}
+
+sub cookie
+{
+	my $self = shift;
+	my $num = shift || 1;
+	my $template = shift ||
+		"test_cookie%n=true; expires=%date(+600); path=/";
+
+	my $expdate = sub {
+		my $time = shift;
+		$time += time if $time =~ m/^[+-]/;
+		return $self->_http_time( $time );
+	};
+	my @cookies;
+	foreach my $n ( 1..$num ) {
+		$_ = $template;
+		s/%n/$n/;
+		s/%date\(\s*([+-]?\d+)\s*\)/$expdate->( $1 )/e;
+		push @cookies, $_;
+	}
+	$self->{out_headers}->{set_cookie} = \@cookies;
+
+	return "Sent $num cookies matching template:\n$template\n";
+}
+
+sub repeat
+{
+	my $self = shift;
+	my $num = shift || 1024;
+	my $pattern = shift || "=";
+
+	return $pattern x $num;
+}
+
+package Test::HTTP::Server::Request;
+our @ISA = qw(Test::HTTP::Server::Connection);
 
 1;
 
@@ -275,17 +373,53 @@ __END__
 
 =head1 NAME
 
-Test::HTTPServer - simple forking http server
+Test::HTTP::Server - simple forking http server
 
 =head1 SYNOPSIS
 
- my $server = Test::HTTPServer->new();
+ my $server = Test::HTTP::Server->new();
 
- client_get( $server->uri );
+ client_get( $server->uri . "my_request" );
+
+ sub Test::HTTP::Server::Request::my_request
+ {
+     my $self = shift;
+     return "foobar!\n"
+ }
 
 =head1 DESCRIPTION
 
 This package provices a simple forking http server which can be used for
 testing http clients.
+
+=head1 DEFAULT METHODS
+
+=over
+
+=item index
+
+Lists user methods.
+
+=item echo / TYPE
+
+Returns whole request in the body. If TYPE is "head", only request head will
+be echoed, if TYPE is "body" (i.g. post requests) only body will be sent.
+
+ system "wget", $server->uri . "echo/head";
+
+=item cookie / REPEAT / PATTERN
+
+Sets a cookie. REPEAT is the number of cookies to be sent. PATTERN is the
+cookie pattern.
+
+ system "wget", $server->uri . "cookie/3";
+
+=item repeat / REPEAT / PATTERN
+
+Sends a pattern.
+
+ system "wget", $server->uri . "repeat/2/foobar";
+
+=back
 
 =cut

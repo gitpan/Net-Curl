@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Net-Curl
-version:            0.23
+version:            0.24
 abstract:           Perl interface for libcurl
 author:
     - Przemysław Iskra <sparky at pld-linux.org>
@@ -9,16 +9,18 @@ distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
     ExtUtils::MakeMaker::Config:  0
+    ExtUtils::PkgConfig:  0
     File::Find:           0
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    File::Temp:        0
-    perl:              5.008001
-    Scalar::Util:      0
-    Test::CPAN::Meta:  0
-    Test::More:        0
-    Test::Pod:         0
+    File::Temp:          0
+    perl:                5.008001
+    Scalar::Util:        0
+    Test::CPAN::Meta:    0
+    Test::HTTP::Server:  0
+    Test::More:          0
+    Test::Pod:           0
 resources:
     repository:  https://github.com/sparky/perl-Net-Curl
 no_index:

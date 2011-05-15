@@ -18,7 +18,21 @@ open my $_body1, ">", \$body1;
 open my $_head2, ">", \$head2;
 open my $_body2, ">", \$body2;
 
-my $url = $server->uri;
+my $url = $server->uri . "slow";
+sub Test::HTTP::Server::Request::slow
+{
+	my $self = shift;
+
+	select undef, undef, undef, 0.5;
+	STDOUT->autoflush( 1 );
+	$self->out_response( "200 OK" );
+	select undef, undef, undef, 0.5;
+	$self->out_headers( %{ $self->{out_headers} } );
+	select undef, undef, undef, 0.5;
+	$self->out_body( "We're good !" x 1000 );
+	select undef, undef, undef, 0.5;
+	return undef;
+}
 
 my $sock_read = 0;
 my $sock_write = 0;
@@ -164,5 +178,5 @@ ok( $sock_change == 0, "nothing unexpected happened: socket" );
 
 ok( length $head1, "received head1" );
 ok( length $head2, "received head2" );
-ok( length $body1, "received body1" );
-ok( length $body2, "received body2" );
+ok( 12000 == length $body1, "received body1" );
+ok( 12000 == length $body2, "received body2" );
