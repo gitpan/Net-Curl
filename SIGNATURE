@@ -14,7 +14,7 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 673afdb9634dfbbae9f1336daef1536bb5b5dc8c Curl.xs
+SHA1 cfc25c781297834fce1caa6bbc0839cfd7267e3d Curl.xs
 SHA1 7ade0876b115c6d77457096dd3f496a82485d824 Curl_Easy.xsh
 SHA1 62c647810309728984cccb5e83a87409f1e2b55c Curl_Easy_callbacks.c
 SHA1 4dd920431cbb38172b7e9467ec98868c626b3465 Curl_Easy_setopt.c
@@ -23,7 +23,7 @@ SHA1 ac1addef3a38e90a33b63c21a12151fa88c7b544 Curl_Multi.xsh
 SHA1 c997b990a8f62a360d8ab4fcc58868edf2b5a38e Curl_Share.xsh
 SHA1 94cbea5b3fb940e25cd4535d1c81bfd7d51dac3c LICENSE
 SHA1 429bf8c82885ad968c6e414ec0ae6c4b7162a131 MANIFEST
-SHA1 9731d7f6d260afc64aa9f83ab83414aad9474fe4 META.yml
+SHA1 6723fdbb708f4600380fa5764ef8bde372ebfd98 META.yml
 SHA1 823b6f7d128ba35ca5578119e3b1c93955a65f29 Makefile.PL
 SHA1 4d9770abf634e17769a0ba33331dbc3a50f0b3ea README
 SHA1 e400ec90c587f215f739142efaea4e898fee2860 examples/01-curl-transport.pl
@@ -39,17 +39,17 @@ SHA1 5c17a56bf0c59a248e12b4e43b45a4ba85812637 inc/Compat/WWW/Curl/Multi.pm
 SHA1 b683b9c3c979c2ebb5ce26d00141b7e6f712ee67 inc/Compat/WWW/Curl/Share.pm
 SHA1 c145c4023e4f8a015b0110476aedd8deccac81e2 inc/Test/HTTP/Server.pm
 SHA1 c94d48390d889d9b4776a2baebbe762b33a1cc26 inc/symbols-in-versions
-SHA1 5a3d5a391dbade9e9283d4952d5017e050f93fc7 lib/Net/Curl.pm
+SHA1 d000101abd1beeb256f03ca26a50073d3dfbfff8 lib/Net/Curl.pm
 SHA1 f6bb66793778df9006b52db8a830598805773175 lib/Net/Curl/Compat.pm
-SHA1 f4dca5fc86c657d4e616a5806934bcd2504c3b6c lib/Net/Curl/Easy.pm
-SHA1 e101f35c9e38294722058f428ea2d5308d549e25 lib/Net/Curl/Form.pm
-SHA1 c1947a452474f2f9c41bc5f697e2cfafabb9f660 lib/Net/Curl/Multi.pm
-SHA1 ea558a90b4021501415c49a448f5839cfefafd87 lib/Net/Curl/Share.pm
+SHA1 3c1ecf2642a59ff620f920f2fc9c23fb32695ca8 lib/Net/Curl/Easy.pm
+SHA1 95753b52a0d09e567cab530e0e7107461ebc0009 lib/Net/Curl/Form.pm
+SHA1 f9297780f86b6fef94a66b6ac5525e5cdd2b07f4 lib/Net/Curl/Multi.pm
+SHA1 d3b314909879ec225fd8461e8a17032152f91bcb lib/Net/Curl/Share.pm
 SHA1 1aba3b48885111b18ff04a61fbd935d433b0fe76 lib/Net/Curl/examples.pod
 SHA1 10ee021520d7eeacc4f5d150169e848965e14484 t/00-info.t
 SHA1 b18bde711dae86f2639c3baf80b99ac826237ef6 t/01-constants.t
 SHA1 a74ad46ca88edf219c50bf4ba50eec4e9b15688e t/02-methods.t
-SHA1 8263ddf649f6c5700adc2d9b5ce200c537bd707c t/40-callback-opensocket.t
+SHA1 70514ea7226ae4bdef9d38782595abab8bc929ae t/40-callback-opensocket.t
 SHA1 f92808b19f1b1f679af82d0730e28727ddbab6c6 t/50-crash-lastref.t
 SHA1 e46c92fca5321518e66abec5c9517f411e6cae35 t/51-crash-destroy-with-callbacks.t
 SHA1 927440d9d8f0b0886929342027d7a0ed4a0e1ae4 t/52-alter-base.t
@@ -98,7 +98,7 @@ SHA1 7b0e013f379f67f219c78779f68dba82bf7e91c9 typemap
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAk3QM2EACgkQdltEc8aiybkH4ACeORdncmen/4l9B28l5Duuk1Di
-cWwAn0gWUGgm0SmQvJIKZ3V+yiEggt89
-=yhT0
+iEYEARECAAYFAk3Q5g8ACgkQdltEc8aiyblhPgCbBO871ticpVG1OYyOAgw6iXtg
+0rEAnA105c5DTfFQhKCZhK16omMcOioB
+=lR8O
 -----END PGP SIGNATURE-----
