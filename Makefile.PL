@@ -25,7 +25,7 @@ my $constant_names;
 
 # XXX: some compilers may not support those flags
 my $devel_cflags = "-Wall ";
-$devel_cflags .= "-Werror -DCALLBACK_TYPECHECK " if -d ".git";
+#$devel_cflags .= "-Werror -DCALLBACK_TYPECHECK " if -d ".git";
 
 if ( $curl{libs} and $curl{version} ) {
 	print "Using manually introduced curl options:\n";
@@ -35,6 +35,14 @@ if ( $curl{libs} and $curl{version} ) {
 } else {
 	eval {
 		require ExtUtils::PkgConfig;
+		my $pkgconfig = `which curl`;
+		unless ( $? ) {
+			chomp $pkgconfig;
+			$pkgconfig =~ s/\bbin(.+?)curl$/lib\1pkgconfig/i;
+			$ENV{PKG_CONFIG_PATH} = $pkgconfig;
+		} else {
+			print STDERR "which failed:\n$@\n";
+		}
 		%curl = ExtUtils::PkgConfig->find( 'libcurl' );
 		$curl{version} = $curl{modversion};
 	};
@@ -57,7 +65,8 @@ if ( $curl{libs} and $curl{version} ) {
 
 	print "Found libcurl version $curl{version}\n";
 
-	if ( eval "v$curl{version} lt v$minimum_libcurl_ver" or $@ ) {
+	(my $ver_to_cmp = $curl{version}) =~ s/[^\d]*$//;
+	if ( eval "v$ver_to_cmp lt v$minimum_libcurl_ver" or $@ ) {
 		print STDERR
 			"Your currently installed libcurl version - $curl{version} - is too old.\n".
 			"This module does not support libcurl older than $minimum_libcurl_ver\n\n";
@@ -228,6 +237,7 @@ sub get_constants_symbols
 {
 	my $curlver = shift;
 	$curlver =~ s/libcurl\s+//;
+	$curlver =~ s/[^\d]*$//;
 	my $cver = eval "v$curlver";
 
 	my %out;

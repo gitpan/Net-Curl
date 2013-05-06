@@ -1,33 +1,33 @@
---- #YAML:1.0
-name:               Net-Curl
-version:            0.25
-abstract:           Perl interface for libcurl
+---
+abstract: 'Perl interface for libcurl'
 author:
-    - Przemysław Iskra <sparky at pld-linux.org>
-license:            mit
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
-    ExtUtils::MakeMaker::Config:  0
-    ExtUtils::PkgConfig:  0
-    File::Find:           0
+  - 'Przemysław Iskra <sparky at pld-linux.org>'
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    File::Temp:          0
-    perl:                5.008001
-    Scalar::Util:        0
-    Test::CPAN::Meta:    0
-    Test::HTTP::Server:  0
-    Test::More:          0
-    Test::Pod:           0
-resources:
-    repository:  https://github.com/sparky/perl-Net-Curl
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.56
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+  ExtUtils::MakeMaker::Config: 0
+  ExtUtils::PkgConfig: 0
+  File::Find: 0
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.130880'
+license: mit
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Net-Curl
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  File::Temp: 0
+  Scalar::Util: 0
+  Test::CPAN::Meta: 0
+  Test::HTTP::Server: 0
+  Test::More: 0
+  Test::Pod: 0
+  perl: 5.008001
+resources:
+  repository: https://github.com/sparky/perl-Net-Curl
+version: 0.26

@@ -1,3 +1,4 @@
+Changes
 Curl.xs
 Curl_Easy.xsh
 Curl_Easy_callbacks.c
@@ -38,6 +39,7 @@ t/51-crash-destroy-with-callbacks.t
 t/52-alter-base.t
 t/53-crash-destroy-with-callbacks-multi.t
 t/54-crash-getinfo-slist.t
+t/96-leak.t
 t/97-pod.t
 t/98-pod-coverage.t
 t/99-symbols.t
@@ -65,7 +67,6 @@ t/old-07ftp-upload.t
 t/old-08ssl.t
 t/old-09times.t
 t/old-10errbuf.t
-t/old-13slowleak.t
 t/old-14duphandle.t
 t/old-15duphandle-callback.t
 t/old-16formpost.t
@@ -78,5 +79,6 @@ t/old-22sendrecv.t
 t/old-23socket-action.t
 t/old-24-multi-refcount.t
 typemap
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
 SIGNATURE                                Public-key signature (added by MakeMaker)

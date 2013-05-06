@@ -5,7 +5,7 @@ use warnings;
 use Net::Curl ();
 use Exporter 'import';
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 our @EXPORT_OK = grep /^CURL/, keys %{Net::Curl::Easy::};
 our %EXPORT_TAGS = ( constants => \@EXPORT_OK );
@@ -337,12 +337,13 @@ CURL_SEEKFUNC_* values.
 =item CURLOPT_SOCKOPTFUNCTION ( CURLOPT_SOCKOPTDATA ) 7.15.6+
 
 sockopt callback receives 4 arguments: easy object, socket fd, socket purpose,
-and CURLOPT_SOCKOPTDATA value. Should return 0 on success.
+and CURLOPT_SOCKOPTDATA value. Is should return one of CURL_SOCKOPT_*
+values.
 
  sub cb_sockopt {
      my ( $easy, $socket, $purpose, $uservar ) = @_;
      # ... do something with the socket ...
-     return 0;
+     return CURL_SOCKOPT_OK;
  }
 
 =item CURLOPT_OPENSOCKETFUNCTION ( CURLOPT_OPENSOCKETDATA ) 7.17.1+
@@ -350,19 +351,40 @@ and CURLOPT_SOCKOPTDATA value. Should return 0 on success.
 opensocket callback receives 4 arguments: easy object, socket purpose,
 address structure (in form of a hashref), and CURLOPT_OPENSOCKETDATA value.
 The address structure has following numeric values: "family", "socktype",
-"protocol", "addrlen"; and "addr" in binary form. Use Socket CPAN module to
-decode "addr" field.
+"protocol"; and "addr" in binary form. Use Socket module to
+decode "addr" field. You are also allowed to change those values.
+
+Callback must return fileno of the socket or CURL_SOCKET_BAD on error.
 
  use Socket;
  sub cb_opensocket {
      my ( $easy, $purpose, $address, $uservar ) = @_;
-     my $addr = unpack_sockaddr_in( $address->{addr} );
-     # ... open ...
-     return $socket;
+
+     # decode addr information
+     my ( $port, $ip ) = unpack_sockaddr_in( $address->{addr} );
+     my $ip_string = inet_ntoa( $ip );
+
+     # open the socket
+     socket my $socket, $address->{family}, $address->{socktype},
+         $address->{protocol};
+
+     # save it somewhere so perl won't close the socket
+     $opened_sockets{ fileno( $socket ) } = $socket;
+
+     # return the socket
+     return fileno $socket;
  }
 
-Currently Net::Curl does not honour any changes made to $address, this
-may be fixed some day.
+=item CURLOPT_CLOSESOCKETFUNCTION ( CURLOPT_CLOSESOCKETDATA ) 7.21.7+
+
+closesocket callback receives 3 arguments: easy object, socket fileno,
+and CURLOPT_CLOSESOCKETDATA value.
+
+ sub cb_closesocket {
+     my ( $easy, $fileno, $uservar ) = @_;
+     my $socket = delete $opened_sockets{ $fileno };
+     close $socket;
+ }
 
 =item CURLOPT_PROGRESSFUNCTION ( CURLOPT_PROGRESSDATA )
 
@@ -448,7 +470,14 @@ CURLOPT_FNMATCH_DATA value. Must return one of CURL_FNMATCHFUNC_* values.
 
 =item CURLOPT_SSH_KEYFUNCTION ( CURLOPT_SSH_KEYDATA ) 7.19.6+
 
-Not supported yet.
+sshkey callback receives 4 arguments: easy object, known key, found key,
+khmatch status and CURLOPT_SSH_KEYDATA value.
+Must return one of CURLKHSTAT_* values.
+
+ sub cb_sshkey {
+     my ( $easy, $knownkey, $foundkey, $khmatch, $uservar ) = @_;
+     return CURLKHSTAT_FINE_ADD_TO_FILE;
+ }
 
 =back
 

@@ -17,10 +17,12 @@ typedef enum {
 	CB_EASY_SEEK,
 	CB_EASY_SOCKOPT,
 	CB_EASY_OPENSOCKET,
+	CB_EASY_CLOSESOCKET,
 	CB_EASY_INTERLEAVE,
 	CB_EASY_CHUNK_BGN,
 	CB_EASY_CHUNK_END,
 	CB_EASY_FNMATCH,
+	CB_EASY_SSHKEY,
 	CB_EASY_LAST
 } perl_curl_easy_callback_code_t;
 
@@ -569,8 +571,6 @@ pushopt( easy, option, value )
 		CURLcode ret;
 	CODE:
 		ret = perl_curl_easy_setoptslist( aTHX_ easy, option, value, 0 );
-		if ( ret < 0 )
-			ret = CURLE_BAD_FUNCTION_ARGUMENT;
 		EASY_DIE( ret );
 
 

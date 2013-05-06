@@ -334,9 +334,8 @@ cb_easy_opensocket( void *userptr, curlsocktype purpose,
 		(void) hv_stores( ah, "family", newSViv( address->family ) );
 		(void) hv_stores( ah, "socktype", newSViv( address->socktype ) );
 		(void) hv_stores( ah, "protocol", newSViv( address->protocol ) );
-		(void) hv_stores( ah, "addrlen", newSVuv( address->addrlen ) );
 		(void) hv_stores( ah, "addr", newSVpvn( (const char *) &address->addr,
-			sizeof( struct sockaddr ) ) );
+			address->addrlen ) );
 		args[2] = newRV( sv_2mortal( (SV *) ah ) );
 	}
 
@@ -357,16 +356,41 @@ cb_easy_opensocket( void *userptr, curlsocktype purpose,
 		if ( tmp && *tmp && SvOK( *tmp ) )
 			address->protocol = SvIV( *tmp );
 
-		tmp = hv_fetchs( ah, "addrlen", 0 );
-		if ( tmp && *tmp && SvOK( *tmp ) )
-			address->addrlen = SvUV( *tmp );
-
 		tmp = hv_fetchs( ah, "addr", 0 );
-		if ( tmp && *tmp && SvOK( *tmp ) )
-			Copy( SvPV_nolen( *tmp ), (char *) &address->addr, 1, struct sockaddr );
+		if ( tmp && *tmp && SvOK( *tmp ) ) {
+			STRLEN len;
+			char *source = SvPV( *tmp, len );
+			if ( len > sizeof( struct sockaddr_storage ) )
+				len = sizeof( struct sockaddr_storage );
+			Copy( source, (char *) &address->addr, len, char );
+			address->addrlen = len;
+		}
 	}
 
 	return ret;
+}
+#endif
+
+
+#ifdef CURLOPT_CLOSESOCKETFUNCTION
+/* CLOSESOCKETFUNCTION -- CLOSESOCKETDATA */
+static void
+cb_easy_closesocket( void *userptr, curl_socket_t item )
+{
+	dTHX;
+
+	perl_curl_easy_t *easy;
+	easy = (perl_curl_easy_t *) userptr;
+	callback_t *cb = &easy->cb[ CB_EASY_CLOSESOCKET ];
+
+	SV *args[] = {
+		SELF2PERL( easy ),
+		newSViv( item ),
+	};
+
+	PERL_CURL_CALL( cb, args );
+
+	return;
 }
 #endif
 
@@ -516,6 +540,47 @@ cb_easy_fnmatch( void *userptr, const char *pattern, const char *string )
 #endif
 
 
+#ifdef CURLKHMATCH_OK
+/* SSH_KEYFUNCTION -- SSH_KEYDATA */
+static SV *
+perl_curl_khkey2hash( pTHX_ const struct curl_khkey *key )
+{
+	HV *h;
+
+	if ( !key )
+		return &PL_sv_undef;
+
+	h = newHV();
+	(void) hv_stores( h, "key", newSVpv( key->key, key->len ) );
+	(void) hv_stores( h, "len", newSVuv( key->len ) );
+	(void) hv_stores( h, "keytype", newSViv( key->keytype ) );
+
+	return newRV( sv_2mortal( (SV *) h ) );
+}
+
+static int
+cb_easy_sshkey( CURL *easy_handle, const struct curl_khkey *knownkey,
+	const struct curl_khkey *foundkey, enum curl_khmatch khmatch,
+	void *userptr )
+{
+	dTHX;
+
+	perl_curl_easy_t *easy;
+	easy = (perl_curl_easy_t *) userptr;
+	callback_t *cb = &easy->cb[ CB_EASY_SSHKEY ];
+
+	SV *args[] = {
+		SELF2PERL( easy ),
+		perl_curl_khkey2hash( aTHX_ knownkey ),
+		perl_curl_khkey2hash( aTHX_ foundkey ),
+		newSViv( khmatch ),
+	};
+
+	return PERL_CURL_CALL( cb, args );
+}
+#endif
+
+
 #ifdef CALLBACK_TYPECHECK
 static curl_progress_callback t_progress __attribute__((unused)) = cb_easy_progress;
 static curl_write_callback t_write __attribute__((unused)) = cb_easy_write;
@@ -526,6 +591,8 @@ static curl_seek_callback t_seek __attribute__((unused)) = cb_easy_seek;
 static curl_read_callback t_read __attribute__((unused)) = cb_easy_read;
 static curl_sockopt_callback t_sockopt __attribute__((unused)) = cb_easy_sockopt;
 static curl_opensocket_callback t_opensocket __attribute__((unused)) = cb_easy_opensocket;
+/*static curl_closesocket_callback t_closesocket __attribute__((unused)) = cb_easy_closesocket;*/
 static curl_ioctl_callback t_ioctl __attribute__((unused)) = cb_easy_ioctl;
 static curl_debug_callback t_debug __attribute__((unused)) = cb_easy_debug;
+static curl_sshkeycallback t_sshkey __attribute__((unused)) = cb_easy_sshkey;
 #endif

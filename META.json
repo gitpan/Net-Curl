@@ -1,0 +1,55 @@
+{
+   "abstract" : "Perl interface for libcurl",
+   "author" : [
+      "Przemysław Iskra <sparky at pld-linux.org>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.130880",
+   "license" : [
+      "mit"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Net-Curl",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0",
+            "ExtUtils::MakeMaker::Config" : "0",
+            "ExtUtils::PkgConfig" : "0",
+            "File::Find" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "File::Temp" : "0",
+            "Scalar::Util" : "0",
+            "Test::CPAN::Meta" : "0",
+            "Test::HTTP::Server" : "0",
+            "Test::More" : "0",
+            "Test::Pod" : "0",
+            "perl" : "5.008001"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "repository" : {
+         "url" : "https://github.com/sparky/perl-Net-Curl"
+      }
+   },
+   "version" : "0.26"
+}

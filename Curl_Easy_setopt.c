@@ -85,6 +85,15 @@ perl_curl_easy_setopt_function( pTHX_ perl_curl_easy_t *easy, long option,
 			break;
 # endif
 #endif
+#ifdef CURLOPT_CLOSESOCKETDATA
+# ifdef CURLOPT_CLOSESOCKETFUNCTION
+		case CURLOPT_CLOSESOCKETFUNCTION:
+			funcptr = cb_easy_closesocket;
+			dataopt = CURLOPT_CLOSESOCKETDATA;
+			cbnum = CB_EASY_CLOSESOCKET;
+			break;
+# endif
+#endif
 #ifdef CURLOPT_INTERLEAVEDATA
 # ifdef CURLOPT_INTERLEAVEFUNCTION
 		case CURLOPT_INTERLEAVEFUNCTION:
@@ -116,6 +125,15 @@ perl_curl_easy_setopt_function( pTHX_ perl_curl_easy_t *easy, long option,
 			funcptr = cb_easy_fnmatch;
 			dataopt = CURLOPT_FNMATCH_DATA;
 			cbnum = CB_EASY_FNMATCH;
+			break;
+# endif
+#endif
+#ifdef CURLOPT_SSH_KEYDATA
+# ifdef CURLOPT_SSH_KEYFUNCTION
+		case CURLOPT_SSH_KEYFUNCTION:
+			funcptr = cb_easy_sshkey;
+			dataopt = CURLOPT_SSH_KEYDATA;
+			cbnum = CB_EASY_SSHKEY;
 			break;
 # endif
 #endif
@@ -190,6 +208,11 @@ perl_curl_easy_setopt_functiondata( pTHX_ perl_curl_easy_t *easy, long option,
 			cbnum = CB_EASY_OPENSOCKET;
 			break;
 #endif
+#ifdef CURLOPT_CLOSESOCKETDATA
+		case CURLOPT_CLOSESOCKETDATA:
+			cbnum = CB_EASY_CLOSESOCKET;
+			break;
+#endif
 #ifdef CURLOPT_INTERLEAVEDATA
 		case CURLOPT_INTERLEAVEDATA:
 # ifdef CURLOPT_INTERLEAVEFUNCTION
@@ -218,6 +241,11 @@ perl_curl_easy_setopt_functiondata( pTHX_ perl_curl_easy_t *easy, long option,
 #ifdef CURLOPT_FNMATCH_DATA
 		case CURLOPT_FNMATCH_DATA:
 			cbnum = CB_EASY_FNMATCH;
+			break;
+#endif
+#ifdef CURLOPT_SSH_KEYDATA
+		case CURLOPT_SSH_KEYDATA:
+			cbnum = CB_EASY_SSHKEY;
 			break;
 #endif
 
