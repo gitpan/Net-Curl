@@ -1,4 +1,6 @@
 use strict;
+use warnings;
+
 use ExtUtils::MakeMaker;
 use ExtUtils::MakeMaker::Config;
 use File::Find;
@@ -38,7 +40,7 @@ if ( $curl{libs} and $curl{version} ) {
 		my $pkgconfig = `which curl`;
 		unless ( $? ) {
 			chomp $pkgconfig;
-			$pkgconfig =~ s/\bbin(.+?)curl$/lib\1pkgconfig/i;
+			$pkgconfig =~ s/\bbin(.+?)curl$/lib$1pkgconfig/i;
 			$ENV{PKG_CONFIG_PATH} = $pkgconfig;
 		} else {
 			print STDERR "which failed:\n$@\n";
@@ -137,7 +139,7 @@ if ( $www_compat ) {
 }
 
 # older perl seems to choke on it, maybe utf8::upgrade would work ?
-my $l_ = $] >= 5.010 ? "ł" : "l";
+my ($l_, $a_) = ($] >= 5.010) ? ("\x{142}", "\x{e1}") : qw(l a);
 WriteMakefile(
 	NAME 		=> 'Net::Curl',
 	VERSION_FROM	=> 'lib/Net/Curl.pm',
@@ -149,30 +151,21 @@ WriteMakefile(
 	LICENSE		=> 'mit',
 	META_MERGE	=> {
 		resources => {
-			repository => 'https://github.com/sparky/perl-Net-Curl'
+			bugtracker	=> 'https://github.com/sparky/perl-Net-Curl/issues',
+			homepage	=> 'https://github.com/sparky/perl-Net.Curl',
+			repository	=> 'git://github.com/sparky/perl-Net-Curl.git',
 		},
-		configure_requires => {
-			# install but do not enforce
-			"ExtUtils::PkgConfig" => 0,
-		},
-		requires => {
-			# we have our own copy
-			"Test::HTTP::Server" => 0,
-			# rather useless
-			"Test::CPAN::Meta" => 0,
-		},
+		x_contributors	=> [
+			"B${a_}lint Szilakszi",
+			"Fuji, Goro",
+			"Przemys${l_}aw Iskra",
+			"Stanislaw Pusep",
+		],
 	},
 	MIN_PERL_VERSION => 5.008001,
 	CONFIGURE_REQUIRES => {
-		"ExtUtils::MakeMaker" => 0,
 		"ExtUtils::MakeMaker::Config" => 0,
-		"File::Find" => 0,
-	},
-	PREREQ_PM => {
-		"Test::More" => 0,
-		"Test::Pod" => 0,
-		"File::Temp" => 0,
-		"Scalar::Util" => 0,
+		"ExtUtils::PkgConfig" => 0,
 	},
 	depend		=> {
 		'Makefile'	=> '$(VERSION_FROM)',
@@ -505,10 +498,10 @@ sub MY::postamble
 	return <<'EOM';
 .PHONY: testall disttestall version_update symbols_update test_update inc_update
 testall:
-	TEST_HAS_INTERNETS=1 TEST_AUTHOR=1 TEST_EXTENDED=1 $(MAKE) test
+	AUTOMATED_TESTING=1 AUTHOR_TESTING=1 EXTENDED_TESTING=1 $(MAKE) test
 
 disttestall:
-	TEST_HAS_INTERNETS=1 TEST_AUTHOR=1 TEST_EXTENDED=1 $(MAKE) disttest
+	AUTOMATED_TESTING=1 AUTHOR_TESTING=1 EXTENDED_TESTING=1 $(MAKE) disttest
 
 version_update:
 	sed -i "/VERSION\s*=/s/=\s*'.*'/= '$(VERSION)'/" lib/Net/Curl/*.pm

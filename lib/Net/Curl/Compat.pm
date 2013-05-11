@@ -58,19 +58,23 @@ methods that do not yet form part of official WWW::Curl distribution.
 use strict;
 use warnings;
 
+use Carp qw(croak);
+
+our $VERSION = 4.15;
+
 my %packages = (
 	'WWW/Curl.pm' => 0,
-	'WWW/Curl/Easy.pm' => 422,
-	'WWW/Curl/Form.pm' => 4293,
-	'WWW/Curl/Multi.pm' => 5199,
-	'WWW/Curl/Share.pm' => 6278,
+	'WWW/Curl/Easy.pm' => 420,
+	'WWW/Curl/Form.pm' => 4289,
+	'WWW/Curl/Multi.pm' => 5193,
+	'WWW/Curl/Share.pm' => 6272,
 );
 
 my $start = tell *DATA;
 unshift @INC, sub {
 	my $pkg = $packages{ $_[1] };
 	return unless defined $pkg;
-	open my $fh, '<&', *DATA;
+	open(my $fh, '<&', *DATA) or croak "can't read from __DATA__";
 	seek $fh, $start + $pkg, 0;
 	return $fh;
 };
@@ -95,7 +99,7 @@ use strict;
 use warnings;
 use Net::Curl ();
 
-our $VERSION = '4.15';
+our $VERSION = 4.15;
 
 # copies constants to current namespace
 sub _copy_constants
@@ -126,7 +130,7 @@ use Net::Curl::Easy ();
 use Exporter ();
 our @ISA = qw(Net::Curl::Easy Exporter);
 
-our $VERSION = '4.15';
+our $VERSION = 4.15;
 our @EXPORT;
 
 BEGIN {
@@ -319,7 +323,7 @@ use Net::Curl::Form ();
 use Exporter ();
 our @ISA = qw(Net::Curl::Form Exporter);
 
-our $VERSION = '4.15';
+our $VERSION = 4.15;
 
 our @EXPORT;
 

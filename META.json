@@ -27,29 +27,31 @@
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0",
             "ExtUtils::MakeMaker::Config" : "0",
-            "ExtUtils::PkgConfig" : "0",
-            "File::Find" : "0"
+            "ExtUtils::PkgConfig" : "0"
          }
       },
       "runtime" : {
          "requires" : {
-            "File::Temp" : "0",
-            "Scalar::Util" : "0",
-            "Test::CPAN::Meta" : "0",
-            "Test::HTTP::Server" : "0",
-            "Test::More" : "0",
-            "Test::Pod" : "0",
             "perl" : "5.008001"
          }
       }
    },
    "release_status" : "stable",
    "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/sparky/perl-Net-Curl/issues"
+      },
+      "homepage" : "https://github.com/sparky/perl-Net.Curl",
       "repository" : {
-         "url" : "https://github.com/sparky/perl-Net-Curl"
+         "url" : "git://github.com/sparky/perl-Net-Curl.git"
       }
    },
-   "version" : "0.26"
+   "version" : "0.27",
+   "x_contributors" : [
+      "Bálint Szilakszi",
+      "Fuji, Goro",
+      "Przemysław Iskra",
+      "Stanislaw Pusep"
+   ]
 }

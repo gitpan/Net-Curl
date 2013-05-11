@@ -1,12 +1,14 @@
 package Net::Curl;
 
 use strict;
+use warnings;
 use Exporter 'import';
 
+## no critic (ProhibitExplicitISA)
 our @ISA;
 our $VERSION;
 BEGIN {
-	$VERSION = '0.26';
+	$VERSION = 0.27;
 
 	my $loaded = 0;
 
@@ -21,6 +23,7 @@ BEGIN {
 		DynaLoader::bootstrap( __PACKAGE__ );
 		$loaded = 1;
 	};
+	## no critic (RequireCheckingReturnValueOfEval)
 	eval { $load_xs->() } if $INC{ "XSLoader.pm" };
 	eval { $load_dyna->() } if $INC{ "DynaLoader.pm" } and not $loaded;
 	unless ( $loaded ) {
@@ -29,7 +32,7 @@ BEGIN {
 	}
 }
 
-our @EXPORT_OK = grep /^(?:LIB)?CURL/, keys %{Net::Curl::};
+our @EXPORT_OK = grep { /^(?:LIB)?CURL/x } keys %{Net::Curl::};
 our %EXPORT_TAGS = ( constants => \@EXPORT_OK );
 
 1;
