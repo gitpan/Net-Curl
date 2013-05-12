@@ -27,13 +27,22 @@
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker::Config" : "0",
-            "ExtUtils::PkgConfig" : "0"
+            "ExtUtils::MakeMaker::Config" : "0"
          }
       },
       "runtime" : {
+         "recommends" : {
+            "ExtUtils::PkgConfig" : "0",
+            "XSLoader" : "0"
+         },
          "requires" : {
-            "perl" : "5.008001"
+            "Carp" : "0",
+            "DynaLoader" : "0",
+            "Exporter" : "0",
+            "overload" : "0",
+            "perl" : "5.008001",
+            "strict" : "0",
+            "warnings" : "0"
          }
       }
    },
@@ -42,12 +51,12 @@
       "bugtracker" : {
          "web" : "https://github.com/sparky/perl-Net-Curl/issues"
       },
-      "homepage" : "https://github.com/sparky/perl-Net.Curl",
+      "homepage" : "https://github.com/sparky/perl-Net-Curl",
       "repository" : {
          "url" : "git://github.com/sparky/perl-Net-Curl.git"
       }
    },
-   "version" : "0.27",
+   "version" : "0.28",
    "x_contributors" : [
       "Bálint Szilakszi",
       "Fuji, Goro",

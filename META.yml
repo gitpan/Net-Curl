@@ -6,7 +6,6 @@ build_requires:
   ExtUtils::MakeMaker: 0
 configure_requires:
   ExtUtils::MakeMaker::Config: 0
-  ExtUtils::PkgConfig: 0
 dynamic_config: 1
 generated_by: 'ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.130880'
 license: mit
@@ -18,13 +17,22 @@ no_index:
   directory:
     - t
     - inc
+recommends:
+  ExtUtils::PkgConfig: 0
+  XSLoader: 0
 requires:
+  Carp: 0
+  DynaLoader: 0
+  Exporter: 0
+  overload: 0
   perl: 5.008001
+  strict: 0
+  warnings: 0
 resources:
   bugtracker: https://github.com/sparky/perl-Net-Curl/issues
-  homepage: https://github.com/sparky/perl-Net.Curl
+  homepage: https://github.com/sparky/perl-Net-Curl
   repository: git://github.com/sparky/perl-Net-Curl.git
-version: 0.27
+version: 0.28
 x_contributors:
   - 'Bálint Szilakszi'
   - 'Fuji, Goro'
