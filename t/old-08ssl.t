@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use Config;
 use Test::More;
 use File::Temp qw/tempfile/;
 use Net::Curl qw(:constants);
@@ -12,6 +13,9 @@ unless ( $ENV{'EXTENDED_TESTING'} ) {
 		' Set $ENV{EXTENDED_TESTING} to a true value to run.';
 	plan skip_all => $msg;
 }
+
+plan skip_all => "FreeBSD stock libcurl might have broken proxy support. "
+    if $Config{osname} eq 'freebsd';
 
 # list of tests
 #         site-url, verifypeer(0,1), verifyhost(0,2), result(0=ok, 1=fail), result-openssl0.9.5
