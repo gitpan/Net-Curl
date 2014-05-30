@@ -10,7 +10,7 @@ use Net::Curl::Easy qw(:constants);
 
 my $server = Test::HTTP::Server->new;
 plan skip_all => "Could not run http server\n" unless $server;
-plan tests => 15;
+plan tests => 17;
 
 # Init the curl session
 my $curl = Net::Curl::Easy->new();
@@ -34,19 +34,23 @@ $myheaders[0] = "Server: www";
 $myheaders[1] = "User-Agent: Perl interface for libcURL";
 ok(! $curl->setopt(CURLOPT_HTTPHEADER, \@myheaders), "Setting CURLOPT_HTTPHEADER");
 
-ok(! $curl->setopt(CURLOPT_PROGRESSDATA,"making progress!"), "Setting CURLOPT_PROGRESSDATA");
+ok(! $curl->setopt(CURLOPT_PROGRESSDATA, "making progress!"), "Setting CURLOPT_PROGRESSDATA");
 
 my $progress_called = 0;
+my $progress_data = '';
 my $last_dlnow = 0;
 sub prog_callb
 {
-    my ($clientp,$dltotal,$dlnow,$ultotal,$ulnow)=@_;
+    my ($clientp, $dltotal, $dlnow, $ultotal, $ulnow, $data)=@_;
     $last_dlnow=$dlnow;
     $progress_called++;
+    $progress_data = $data;
     return 0;
 }                        
 
 ok (! $curl->setopt(CURLOPT_PROGRESSFUNCTION, \&prog_callb), "Setting CURLOPT_PROGRESSFUNCTION");
+
+ok (! $curl->setopt(CURLOPT_PROGRESSDATA, "test-data"), "Setting CURLOPT_PROGRESSDATA");
 
 ok (! $curl->setopt(CURLOPT_NOPROGRESS, 0), "Turning progress meter back on");
 
@@ -54,5 +58,7 @@ eval { $curl->perform() };
 ok (!$@, "Performing perform");
 
 ok ($progress_called, "Progress callback called");
+
+ok ($progress_data eq "test-data", "CURLOPT_PROGRESSDATA is used correctly");
 
 ok ($last_dlnow, "Last downloaded chunk non-zero");

@@ -57,7 +57,7 @@ if ( $curl{libs} and $curl{version} ) {
 		};
 		if ( $@ ) {
 			print STDERR "curl-config failed:\n$@\n\n",
-				"libcurl development fils do not seem to be available\n",
+				"libcurl development files do not seem to be available\n",
 				"You must install libcurl $minimum_libcurl_ver or newer to\n",
 				"build this module\n\n";
 			print STDERR "NA: Unable to build distribution on this platform.\n";
@@ -143,7 +143,10 @@ my $bits = (length(pack(p => 0)) < 8)
     : '';
 
 # older perl seems to choke on it, maybe utf8::upgrade would work ?
-my ($l_, $a_) = ($] >= 5.010) ? ("\x{142}", "\x{e1}") : qw(l a);
+my ($l_, $a_) = ($] >= 5.010)
+    ? ("\x{142}", "\x{e1}")
+    : qw(l a);
+
 WriteMakefile(
 	NAME 		=> 'Net::Curl',
 	VERSION_FROM	=> 'lib/Net/Curl.pm',
@@ -168,6 +171,8 @@ WriteMakefile(
 			"Fuji, Goro",
 			"Przemys${l_}aw Iskra",
 			"Stanislaw Pusep",
+			"Olaf Alders",
+			"Maksym Davydov",
 		],
 	},
 	MIN_PERL_VERSION => 5.008001,
@@ -221,7 +226,7 @@ sub get_curl_incdir
 	my @incpath = (
 		( defined $curl{incdir} ? $curl{incdir} : () ),
 		( $curl{cflags} =~ /-I(\S+)/g ),
-		( "$curl{prefix}/include" ),
+		( defined $curl{prefix} ? "$curl{prefix}/include" : () ),
 		( split /\s+/, $Config{usrinc} ),
 		( split /\s+/, $Config{locincpth} ),
 		qw(
