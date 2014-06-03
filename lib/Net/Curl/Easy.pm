@@ -5,7 +5,7 @@ use warnings;
 use Net::Curl ();
 use Exporter 'import';
 
-our $VERSION = 0.34;
+our $VERSION = 0.35;
 
 our @EXPORT_OK = grep { /^CURL/x } keys %{Net::Curl::Easy::};
 our %EXPORT_TAGS = ( constants => \@EXPORT_OK );
@@ -235,6 +235,9 @@ URL decodes the given string.
  my $unescaped = $easy->unescape( "%2Bbar" );
 
 Calls L<curl_easy_unescape(3)> which URL decodes the given string.
+
+If you are sure the unescaped data contains a utf8 string, you can mark it
+with utf8::decode( $unescaped )
 
 =back
 
