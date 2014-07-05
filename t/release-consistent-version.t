@@ -13,7 +13,7 @@ use warnings;
 
 use Test::More;
 
-eval 'use Test::Portability::Files';
-plan skip_all => 'Test::Portability::Files required for testing portability'
+eval 'use Test::ConsistentVersion';
+plan skip_all => 'Test::ConsistentVersion required for this test'
     if $@;
-run_tests();
+Test::ConsistentVersion::check_consistent_versions(no_pod => 1);
